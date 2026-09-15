@@ -1,0 +1,18 @@
+<h1>Customers</h1>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Phone</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @customers.each do |customer| %>
+      <tr>
+        <td><%= link_to customer.name, customer_path(customer) %></td>
+        <td><%= customer.phone %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

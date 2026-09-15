@@ -1,0 +1,8 @@
+<h1><%= @service.name %></h1>
+
+<p>
+  <strong>Current price:</strong>
+  <%= number_to_currency(@service.current_price, unit: "$", precision: 0) %>
+</p>
+
+<%= link_to "Back to services", services_path, class: "btn btn-secondary" %>

@@ -1,0 +1,22 @@
+<h1><%= @staff_member.name %></h1>
+
+<p><strong>Role:</strong> <%= @staff_member.role %></p>
+
+<% if @staff_member.role == "Mechanic" %>
+  <h2>Repairs</h2>
+
+  <% if @staff_member.repairs.any? %>
+    <ul>
+      <% @staff_member.repairs.each do |repair| %>
+        <li>
+          <%= link_to "#{repair.bike.make} #{repair.bike.model} — #{repair.status.humanize}",
+                      repair_path(repair) %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>No repairs assigned.</p>
+  <% end %>
+<% end %>
+
+<%= link_to "Back to staff", staff_index_path, class: "btn btn-secondary" %>

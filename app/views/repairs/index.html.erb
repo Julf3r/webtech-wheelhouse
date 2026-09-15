@@ -1,0 +1,36 @@
+<h1>Repairs</h1>
+
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Bike</th>
+        <th>Customer</th>
+        <th>Status</th>
+        <th>Promised</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @repairs.each do |repair| %>
+        <% overdue = repair.promised_on < Date.current && repair.handed_back_at.nil? %>
+
+        <tr class="<%= 'table-danger' if overdue %>">
+          <td>
+            <%= link_to "#{repair.bike.make} #{repair.bike.model}",
+                        repair_path(repair) %>
+          </td>
+          <td>
+            <%= link_to repair.bike.customer.name,
+                        customer_path(repair.bike.customer) %>
+          </td>
+          <td><%= repair.status.humanize %></td>
+          <td>
+            <%= repair.promised_on %>
+            <strong><%= " — OVERDUE" if overdue %></strong>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

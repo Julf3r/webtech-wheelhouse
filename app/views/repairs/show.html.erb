@@ -1,0 +1,57 @@
+<h1>Repair</h1>
+
+<p>
+  <strong>Bike:</strong>
+  <%= link_to "#{@repair.bike.make} #{@repair.bike.model}",
+              bike_path(@repair.bike) %>
+</p>
+
+<p><strong>Status:</strong> <%= @repair.status.humanize %></p>
+<p><strong>Received:</strong> <%= @repair.received_at.to_date %></p>
+<p><strong>Promised:</strong> <%= @repair.promised_on %></p>
+
+<p>
+  <strong>Mechanic:</strong>
+  <% if @repair.mechanic %>
+    <%= link_to @repair.mechanic.name, staff_path(@repair.mechanic) %>
+  <% else %>
+    Not assigned
+  <% end %>
+</p>
+
+<h2>Services</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Service</th>
+      <th>Charged price</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @repair.repair_services.each do |repair_service| %>
+      <tr>
+        <td>
+          <%= link_to repair_service.service.name,
+                      service_path(repair_service.service) %>
+        </td>
+        <td>
+          <%= number_to_currency(repair_service.charged_price,
+                                 unit: "$", precision: 0) %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<p>
+  <strong>Total:</strong>
+  <%= number_to_currency(
+        @repair.repair_services.sum(:charged_price),
+        unit: "$",
+        precision: 0
+      ) %>
+</p>
+
+<%= link_to "Back to repairs", repairs_path, class: "btn btn-secondary" %>

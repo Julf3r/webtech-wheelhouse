@@ -1,0 +1,25 @@
+<h1><%= @bike.make %> <%= @bike.model %></h1>
+
+<p><strong>Color:</strong> <%= @bike.color %></p>
+<p><strong>Serial number:</strong> <%= @bike.serial_number %></p>
+<p>
+  <strong>Owner:</strong>
+  <%= link_to @bike.customer.name, customer_path(@bike.customer) %>
+</p>
+
+<h2>Repairs</h2>
+
+<% if @bike.repairs.any? %>
+  <ul>
+    <% @bike.repairs.each do |repair| %>
+      <li>
+        <%= link_to "#{repair.status} — #{repair.received_at.to_date}",
+                    repair_path(repair) %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No repairs recorded.</p>
+<% end %>
+
+<%= link_to "Back to bikes", bikes_path, class: "btn btn-secondary" %>

@@ -1,0 +1,20 @@
+<h1>Bikes</h1>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Bike</th>
+      <th>Color</th>
+      <th>Owner</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @bikes.each do |bike| %>
+      <tr>
+        <td><%= link_to "#{bike.make} #{bike.model}", bike_path(bike) %></td>
+        <td><%= bike.color %></td>
+        <td><%= link_to bike.customer.name, customer_path(bike.customer) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
