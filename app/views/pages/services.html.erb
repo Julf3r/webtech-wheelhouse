@@ -1,0 +1,23 @@
+<h1>Services</h1>
+
+<p>Our current bicycle repair services and prices.</p>
+
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Service</th>
+        <th scope="col">Price</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @services.each do |service| %>
+        <tr>
+          <td><%= service[:name] %></td>
+          <td><%= number_to_currency(service[:price], unit: "$", precision: 0) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
