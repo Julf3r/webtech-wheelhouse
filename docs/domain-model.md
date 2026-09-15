@@ -95,3 +95,8 @@ The `charged_price` in `repair_services` is stored even though it may look deriv
 It must be stored because the listed price of a service can change over time, and a repair may also receive a discount.
 
 Therefore, the charged price represents the historical price actually applied to that specific repair.
+
+## Changes since Lab 3
+
+- Added `created_at` and `updated_at` timestamps to every table to follow Rails conventions.
+- The database schema was implemented without foreign key constraints. Relationships are currently represented by their `_id` columns; database foreign keys will be added in a later lab.

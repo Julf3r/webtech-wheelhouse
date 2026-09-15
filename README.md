@@ -31,7 +31,7 @@ yarn install
 Create the development database:
 
 ```bash
-bin/rails db:create
+bin/rails db:setup
 ```
 
 Start the application:

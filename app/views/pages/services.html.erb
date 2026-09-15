@@ -14,8 +14,8 @@
     <tbody>
       <% @services.each do |service| %>
         <tr>
-          <td><%= service[:name] %></td>
-          <td><%= number_to_currency(service[:price], unit: "$", precision: 0) %></td>
+          <td><%= service.name %></td>
+          <td><%= number_to_currency(service.current_price, unit: "$", precision: 0) %></td>
         </tr>
       <% end %>
     </tbody>
