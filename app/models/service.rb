@@ -3,5 +3,5 @@ class Service < ApplicationRecord
   has_many :repairs, through: :repair_services
 
   validates :name, presence: true
-  validetes :current_price, presence: true, numericality: {greater_than_or_equal_to: 0}
+  validates :current_price, presence: true, numericality: {greater_than: 0}
 end

@@ -3,5 +3,5 @@ class Staff < ApplicationRecord
 
   has_many :repairs, foreign_key: :mechanic_id
 
-  validates :name, presence: true
+  validates :name, :role, presence: true
 end

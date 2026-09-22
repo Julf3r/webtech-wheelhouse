@@ -14,15 +14,38 @@ class Repair < ApplicationRecord
 
 
   scope :pending, -> { where(handed_back_at: nil) }
-  scope :overdue, -> { pending.where(:promised_on => ..Date.current) }
+  scope :overdue, -> { pending.where("promised_on < ?", Date.current) }
 
+  validates :recived_at, :status, presence: true
   validates :promised_on, presence: true
-  validates :quoted_price, presence: true, numericality: {greater_than_or_equal_to: 0}
+  validates :quoted_price, numericality: {greater_than: 0}, allow_nil: true
 
   def pending?
     handed_back_at.nil?
   end
 
   def overdue?
-    pending? &&promised_on <= Date.current
+    pending? && promised_on < Date.current
+
+  validate :dates_make_sense
+  validate :customer_decision_matches_lifecycle
+
+  private
+  
+  def dates_make_sense
+    if handed_back_at.present? && handed_back_at.to_date < received_at.to_date
+      errors.add(:handed_back_at, "cannot be before the repair was received")
+    end
+
+    if promised_on.present? && received_at.present? &&
+      promised_on < received_at.to_date
+      errors.add(:promised_on, "cannot be before the repair was received")
+    end
+  end
+
+  def customer_decision_matches_lifecycle
+    if (in_repair? || ready_for_pickup? || completed?) &&
+      customer_decision.blank?
+        errors.add(:customer_decision, "must be recorded after the customer's decision")
+    end
   end
