@@ -5,13 +5,7 @@
 <h2>Bikes</h2>
 
 <% if @customer.bikes.any? %>
-  <ul>
-    <% @customer.bikes.each do |bike| %>
-      <li>
-        <%= link_to "#{bike.make} #{bike.model}", bike_path(bike) %>
-      </li>
-    <% end %>
-  </ul>
+  <%= render @customer.bikes %>
 <% else %>
   <p>This customer has no bikes.</p>
 <% end %>
