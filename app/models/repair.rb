@@ -15,7 +15,7 @@ class Repair < ApplicationRecord
   has_many :services, through: :repair_services, dependent: :restrict_with_error
 
 
-  scope :newest_first, -> { order(received_at: :desc) }
+  scope :by_newest_first, -> { order(received_at: :desc) }
 
   scope :pending, -> { where(handed_back_at: nil) }
   scope :overdue, -> { pending.where("promised_on < ?", Date.current) }
