@@ -3,7 +3,7 @@ class PagesController < ApplicationController
   end
 
   def services
-    @services = Service.order(:name)
+    @services = Service.by_name
   end
 
   def visit

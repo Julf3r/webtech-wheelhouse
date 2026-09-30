@@ -11,9 +11,11 @@ class Repair < ApplicationRecord
   belongs_to :mechanic, class_name: "Staff", optional: true
 
 
-  has_many :repair_services
-  has_many :services, through: :repair_services
+  has_many :repair_services, dependent: :restrict_with_error
+  has_many :services, through: :repair_services, dependent: :restrict_with_error
 
+
+  scope :newest_first, -> { order(received_at: :desc) }
 
   scope :pending, -> { where(handed_back_at: nil) }
   scope :overdue, -> { pending.where("promised_on < ?", Date.current) }

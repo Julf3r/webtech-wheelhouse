@@ -1,9 +1,9 @@
 class RepairsController < ApplicationController
   def index
-    @repairs = Repair.order(received_at: :desc)
+    @repairs = Repair.includes(bike: :customer).by_newest_first
   end
 
   def show
-    @repair = Repair.find(params[:id])
+    @repair = Repair.includes(:bike, repair_services: :services).find(params[:id])
   end
 end

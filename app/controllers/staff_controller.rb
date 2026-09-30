@@ -1,6 +1,6 @@
 class StaffController < ApplicationController
   def index
-    @staff = Staff.order(:name)
+    @staff = Staff.by_name
   end
 
   def show
