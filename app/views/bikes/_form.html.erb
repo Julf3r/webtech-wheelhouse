@@ -1,0 +1,37 @@
+<%= form_with model: bike do |form| %>
+  <% if bike.errors.any? %>
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        <% bike.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :customer_id, "Customer", class: "form-label" %>
+    <%= form.collection_select :customer_id, Customer.by_name,
+        :id, :name,
+        { prompt: "Select a customer" },
+        { class: "form-select #{'is-invalid' if bike.errors[:customer].any? || bike.errors[:customer_id].any?}" } %>
+
+    <% (bike.errors[:customer] + bike.errors[:customer_id]).each do |message| %>
+      <div class="invalid-feedback d-block"><%= message %></div>
+    <% end %>
+  </div>
+
+  <% [:make, :model, :color, :serial_number].each do |field| %>
+    <div class="mb-3">
+      <%= form.label field, class: "form-label" %>
+      <%= form.text_field field,
+          class: "form-control #{'is-invalid' if bike.errors[field].any?}" %>
+
+      <% bike.errors[field].each do |message| %>
+        <div class="invalid-feedback d-block"><%= message %></div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>

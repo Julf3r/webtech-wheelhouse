@@ -1,57 +1,122 @@
-<h1>Repair</h1>
 
-<p>
-  <strong>Bike:</strong>
-  <%= link_to "#{@repair.bike.make} #{@repair.bike.model}",
-              bike_path(@repair.bike) %>
-</p>
+<div class="container py-4">
+  <h1>Repair #<%= @repair.id %></h1>
 
-<p><strong>Status:</strong> <%= @repair.status.humanize %></p>
-<p><strong>Received:</strong> <%= @repair.received_at.to_date %></p>
-<p><strong>Promised:</strong> <%= @repair.promised_on %></p>
+  <p>
+    <strong>Bike:</strong>
+    <%= link_to "#{@repair.bike.make} #{@repair.bike.model}",
+                bike_path(@repair.bike) %>
+  </p>
 
-<p>
-  <strong>Mechanic:</strong>
-  <% if @repair.mechanic %>
-    <%= link_to @repair.mechanic.name, staff_path(@repair.mechanic) %>
-  <% else %>
-    Not assigned
-  <% end %>
-</p>
+  <p>
+    <strong>Status:</strong>
+    <%= @repair.status.humanize %>
+  </p>
 
-<h2>Services</h2>
+  <p>
+    <strong>Received:</strong>
+    <%= @repair.received_at&.to_date || "Not specified" %>
+  </p>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>Service</th>
-      <th>Charged price</th>
-    </tr>
-  </thead>
+  <p>
+    <strong>Promised:</strong>
+    <%= @repair.promised_on || "Not specified" %>
+  </p>
 
-  <tbody>
-    <% @repair.repair_services.each do |repair_service| %>
-      <tr>
-        <td>
-          <%= link_to repair_service.service.name,
-                      service_path(repair_service.service) %>
-        </td>
-        <td>
-          <%= number_to_currency(repair_service.charged_price,
-                                 unit: "$", precision: 0) %>
-        </td>
-      </tr>
+  <p>
+    <strong>Mechanic:</strong>
+    <% if @repair.mechanic %>
+      <%= link_to @repair.mechanic.name,
+                  staff_path(@repair.mechanic) %>
+    <% else %>
+      Not assigned
     <% end %>
-  </tbody>
-</table>
+  </p>
 
-<p>
-  <strong>Total:</strong>
-  <%= number_to_currency(
-        @repair.repair_services.sum(:charged_price),
-        unit: "$",
-        precision: 0
-      ) %>
-</p>
+  <p>
+    <strong>Intake condition:</strong>
+    <%= @repair.intake_condition.presence || "Not specified" %>
+  </p>
 
-<%= link_to "Back to repairs", repairs_path, class: "btn btn-secondary" %>
+  <p>
+    <strong>Quoted price:</strong>
+    <% if @repair.quoted_price %>
+      <%= number_to_currency(@repair.quoted_price,
+                             unit: "$", precision: 0) %>
+    <% else %>
+      Not quoted
+    <% end %>
+  </p>
+
+  <p>
+    <strong>Customer decision:</strong>
+    <%= @repair.customer_decision&.humanize || "Pending" %>
+  </p>
+
+  <p>
+    <strong>Handed back:</strong>
+    <%= @repair.handed_back_at&.to_date || "Not yet" %>
+  </p>
+
+  <h2 class="mt-4">Services</h2>
+
+  <% if @repair.repair_services.any? %>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Charged price</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @repair.repair_services.each do |repair_service| %>
+          <tr>
+            <td>
+              <%= link_to repair_service.service.name,
+                          service_path(repair_service.service) %>
+            </td>
+            <td>
+              <%= number_to_currency(
+                    repair_service.charged_price,
+                    unit: "$",
+                    precision: 0
+                  ) %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <p class="fw-bold">
+      Total:
+      <%= number_to_currency(
+            @repair.repair_services.sum(&:charged_price),
+            unit: "$",
+            precision: 0
+          ) %>
+    </p>
+  <% else %>
+    <p>No services assigned.</p>
+  <% end %>
+
+  <div class="d-flex gap-2 mt-4">
+    <%= link_to "Edit Repair",
+                edit_repair_path(@repair),
+                class: "btn btn-primary" %>
+
+    <%= button_to "Delete Repair",
+                  repair_path(@repair),
+                  method: :delete,
+                  class: "btn btn-danger",
+                  form: {
+                    data: {
+                      turbo_confirm: "Are you sure you want to delete this repair?"
+                    }
+                  } %>
+
+    <%= link_to "Back",
+                repairs_path,
+                class: "btn btn-secondary" %>
+  </div>
+</div>

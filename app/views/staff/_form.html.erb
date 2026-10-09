@@ -1,0 +1,25 @@
+<%= form_with model: staff_member, url: staff_member.persisted? ? staff_path(staff_member) : staff_index_path do |form| %>
+  <% if staff_member.errors.any? %>
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        <% staff_member.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% [:name, :role].each do |field| %>
+    <div class="mb-3">
+      <%= form.label field, class: "form-label" %>
+      <%= form.text_field field,
+          class: "form-control #{'is-invalid' if staff_member.errors[field].any?}" %>
+
+      <% staff_member.errors[field].each do |message| %>
+        <div class="invalid-feedback d-block"><%= message %></div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>

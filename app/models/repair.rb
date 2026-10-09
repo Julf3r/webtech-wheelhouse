@@ -11,9 +11,12 @@ class Repair < ApplicationRecord
   belongs_to :mechanic, class_name: "Staff", optional: true
 
 
-  has_many :repair_services, dependent: :restrict_with_error
+  has_many :repair_services, dependent: :destroy
   has_many :services, through: :repair_services, dependent: :restrict_with_error
 
+  accepts_nested_attributes_for :repair_services,
+                              allow_destroy: true,
+                              reject_if: :all_blank
 
   scope :by_newest_first, -> { order(received_at: :desc) }
 

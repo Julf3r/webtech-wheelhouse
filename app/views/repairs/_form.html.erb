@@ -1,0 +1,177 @@
+<%= form_with model: repair do |form| %>
+
+  <% if repair.errors.any? %>
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        <% repair.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :bike_id, "Bike", class: "form-label" %>
+    <%= form.collection_select :bike_id,
+        Bike.includes(:customer).by_make_and_model,
+        :id,
+        :serial_number,
+        { prompt: "Select a bike" },
+        { class: "form-select #{'is-invalid' if repair.errors[:bike].any? || repair.errors[:bike_id].any?}" } %>
+
+    <% (repair.errors[:bike] + repair.errors[:bike_id]).each do |message| %>
+      <div class="invalid-feedback d-block"><%= message %></div>
+    <% end %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :mechanic_id, "Mechanic", class: "form-label" %>
+    <%= form.collection_select :mechanic_id,
+        Staff.by_name,
+        :id,
+        :name,
+        { include_blank: "Unassigned" },
+        { class: "form-select #{'is-invalid' if repair.errors[:mechanic].any? || repair.errors[:mechanic_id].any?}" } %>
+
+    <% (repair.errors[:mechanic] + repair.errors[:mechanic_id]).each do |message| %>
+      <div class="invalid-feedback d-block"><%= message %></div>
+    <% end %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :status, class: "form-label" %>
+    <%= form.select :status,
+        Repair.statuses.keys.map { |status| [status.humanize, status] },
+        {},
+        { class: "form-select #{'is-invalid' if repair.errors[:status].any?}" } %>
+
+    <% repair.errors[:status].each do |message| %>
+      <div class="invalid-feedback d-block"><%= message %></div>
+    <% end %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :promised_on, class: "form-label" %>
+    <%= form.date_field :promised_on,
+        class: "form-control #{'is-invalid' if repair.errors[:promised_on].any?}" %>
+
+    <% repair.errors[:promised_on].each do |message| %>
+      <div class="invalid-feedback d-block"><%= message %></div>
+    <% end %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :received_at, class: "form-label" %>
+    <%= form.datetime_local_field :received_at,
+        class: "form-control #{'is-invalid' if repair.errors[:received_at].any?}" %>
+
+    <% repair.errors[:received_at].each do |message| %>
+      <div class="invalid-feedback d-block"><%= message %></div>
+    <% end %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :handed_back_at, class: "form-label" %>
+    <%= form.datetime_local_field :handed_back_at,
+        class: "form-control #{'is-invalid' if repair.errors[:handed_back_at].any?}" %>
+
+    <% repair.errors[:handed_back_at].each do |message| %>
+      <div class="invalid-feedback d-block"><%= message %></div>
+    <% end %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :quoted_price, class: "form-label" %>
+    <%= form.number_field :quoted_price,
+        step: "0.01",
+        class: "form-control #{'is-invalid' if repair.errors[:quoted_price].any?}" %>
+
+    <% repair.errors[:quoted_price].each do |message| %>
+      <div class="invalid-feedback d-block"><%= message %></div>
+    <% end %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :customer_decision, class: "form-label" %>
+    <%= form.select :customer_decision,
+        Repair.customer_decisions.keys.map { |decision| [decision.humanize, decision] },
+        { include_blank: "Not decided" },
+        { class: "form-select #{'is-invalid' if repair.errors[:customer_decision].any?}" } %>
+
+    <% repair.errors[:customer_decision].each do |message| %>
+      <div class="invalid-feedback d-block"><%= message %></div>
+    <% end %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :intake_condition, class: "form-label" %>
+    <%= form.text_area :intake_condition,
+        rows: 3,
+        class: "form-control #{'is-invalid' if repair.errors[:intake_condition].any?}" %>
+
+    <% repair.errors[:intake_condition].each do |message| %>
+      <div class="invalid-feedback d-block"><%= message %></div>
+    <% end %>
+  </div>
+
+  <hr>
+
+  <p>
+    DEBUG:
+    <%= repair.repair_services.size %> rows,
+    <%= repair.repair_services.count(&:new_record?) %> new
+  </p>
+
+  <h3>Repair Services</h3>
+
+  <%= form.fields_for :repair_services do |service_form| %>
+    <div class="border rounded p-3 mb-3">
+
+      <% if service_form.object.errors.any? %>
+        <div class="alert alert-danger">
+          <%= service_form.object.errors.full_messages.to_sentence %>
+        </div>
+      <% end %>
+
+        <div class="mb-3">
+        <%= service_form.label :service_id, "Service", class: "form-label" %>
+
+        <%= service_form.collection_select :service_id,
+            Service.by_name,
+            :id,
+            :name,
+            { include_blank: "Select a service" },
+            { class: "form-select #{'is-invalid' if service_form.object.errors[:service].any? || service_form.object.errors[:service_id].any?}" } %>
+
+        <% (service_form.object.errors[:service] +
+            service_form.object.errors[:service_id]).each do |message| %>
+            <div class="invalid-feedback d-block"><%= message %></div>
+        <% end %>
+        </div>
+
+        <div class="mb-3">
+        <%= service_form.label :charged_price, class: "form-label" %>
+
+        <%= service_form.number_field :charged_price,
+            step: "0.01",
+            class: "form-control #{'is-invalid' if service_form.object.errors[:charged_price].any?}" %>
+
+        <% service_form.object.errors[:charged_price].each do |message| %>
+            <div class="invalid-feedback d-block"><%= message %></div>
+        <% end %>
+        </div>
+
+
+      <% if service_form.object.persisted? %>
+        <div class="form-check">
+          <%= service_form.check_box :_destroy, class: "form-check-input" %>
+          <%= service_form.label :_destroy, "Remove this service", class: "form-check-label" %>
+        </div>
+      <% end %>
+
+    </div>
+  <% end %>
+
+  <%= form.submit class: "btn btn-primary" %>
+
+<% end %>
