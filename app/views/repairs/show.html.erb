@@ -100,6 +100,38 @@
     <p>No services assigned.</p>
   <% end %>
 
+  
+  <hr>
+
+  <h2>Diagnosis</h2>
+
+  <% if @repair.diagnosis.present? %>
+    <div class="mb-4">
+      <%= @repair.diagnosis %>
+    </div>
+  <% else %>
+    <p>No diagnosis recorded.</p>
+  <% end %>
+
+  <h2>Intake Photos</h2>
+
+  <% if @repair.intake_photos.attached? %>
+    <div class="d-flex flex-wrap gap-3 mb-4">
+      <% @repair.intake_photos.each do |photo| %>
+        <%= link_to url_for(photo), target: "_blank",
+            rel: "noopener" do %>
+          <%= image_tag photo.variant(:display),
+              alt: "Intake photo of #{@repair.bike.make} #{@repair.bike.model}, repair ##{@repair.id}",
+              class: "img-fluid rounded",
+              style: "max-width: 300px;" %>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <p>No intake photos uploaded.</p>
+  <% end %>
+
+
   <div class="d-flex gap-2 mt-4">
     <%= link_to "Edit Repair",
                 edit_repair_path(@repair),

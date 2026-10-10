@@ -51,4 +51,14 @@ class BikesController < ApplicationController
   def bike_params
     params.expect(bike: [:customer_id, :make, :model, :color, :serial_number])
   end
+
+  def set_bike
+    @bike = Bike.includes(
+      :customer,
+      repairs: [
+        :rich_text_diagnosis,
+        { intake_photos_attachments: :blob }
+      ]
+    ).find(params[:id])
+  end
 end

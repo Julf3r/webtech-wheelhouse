@@ -1,0 +1,25 @@
+<tr>
+  <td>
+    <%= link_to "##{repair.id}", repair_path(repair) %>
+  </td>
+
+  <td>
+    <%= link_to "#{repair.bike.make} #{repair.bike.model}",
+        bike_path(repair.bike) %>
+  </td>
+
+  <td><%= repair.status.humanize %></td>
+
+  <td>
+    <% if repair.intake_photos.attached? %>
+      <%= image_tag repair.intake_photos.first.variant(:thumb),
+          alt: "Repair #{repair.id} thumbnail" %>
+    <% else %>
+      No photo
+    <% end %>
+  </td>
+
+  <td>
+    <%= repair.diagnosis.to_plain_text.truncate(80) %>
+  </td>
+</tr>

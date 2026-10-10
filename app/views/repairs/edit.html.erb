@@ -3,5 +3,31 @@
 
   <%= render "form", repair: @repair %>
 
+  
+  <% if @repair.intake_photos.attached? %>
+    <h3 class="mt-4">Remove existing photos</h3>
+
+    <div class="d-flex flex-wrap gap-3">
+      <% @repair.intake_photos.attachments.select(&:persisted?).each do |photo| %>
+        <div class="border rounded p-2">
+          <%= image_tag photo.variant(:thumb),
+              alt: "Repair #{@repair.id} intake photo",
+              class: "d-block mb-2" %>
+
+          <%= button_to "Remove",
+              purge_repair_photo_path(@repair, photo.id),
+              method: :delete,
+              class: "btn btn-danger btn-sm",
+              form: {
+                data: {
+                  turbo_confirm: "Remove this photo permanently?"
+                }
+              } %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+
   <%= link_to "Back", repairs_path, class: "btn btn-secondary mt-3" %>
 </div>

@@ -172,6 +172,40 @@
     </div>
   <% end %>
 
+  
+  <hr>
+
+  <h3>Intake Photos</h3>
+
+  <div class="mb-3">
+    <%= form.label :intake_photos,
+        "Upload intake photos",
+        class: "form-label" %>
+
+    <%= form.file_field :intake_photos,
+        multiple: true,
+        accept: "image/jpeg,image/png,image/webp",
+        class: "form-control #{'is-invalid' if repair.errors[:intake_photos].any?}" %>
+
+    <div class="form-text">
+      JPEG, PNG or WebP. Maximum 5 MB per image.
+    </div>
+
+    <% repair.errors[:intake_photos].each do |message| %>
+      <div class="invalid-feedback d-block">
+        <%= message %>
+      </div>
+    <% end %>
+  </div>
+
+  <h3>Diagnosis</h3>
+
+  <div class="mb-3">
+    <%= form.label :diagnosis, class: "form-label" %>
+    <%= form.rich_text_area :diagnosis, class: "form-control" %>
+  </div>
+
+
   <%= form.submit class: "btn btn-primary" %>
 
 <% end %>

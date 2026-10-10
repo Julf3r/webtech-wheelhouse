@@ -7,20 +7,27 @@
   <%= link_to @bike.customer.name, customer_path(@bike.customer) %>
 </p>
 
-<h2>Repairs</h2>
 
-<% if @bike.repairs.any? %>
-  <ul>
-    <% @bike.repairs.each do |repair| %>
-      <li>
-        <%= link_to "#{repair.status} — #{repair.received_at.to_date}",
-                    repair_path(repair) %>
-      </li>
-    <% end %>
-  </ul>
-<% else %>
-  <p>No repairs recorded.</p>
-<% end %>
+<h2 class="mt-4">Repairs</h2>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Bike</th>
+      <th>Status</th>
+      <th>Photo</th>
+      <th>Diagnosis</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <%= render partial: "repairs/repair_row",
+        collection: @bike.repairs,
+        as: :repair %>
+  </tbody>
+</table>
+
 
 <%= link_to "Back to bikes", bikes_path, class: "btn btn-secondary" %>
 

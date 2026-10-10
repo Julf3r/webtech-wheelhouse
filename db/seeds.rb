@@ -340,3 +340,49 @@ puts "#{Customer.count} customers"
 puts "#{Bike.count} bikes"
 puts "#{Repair.count} repairs"
 puts "#{RepairService.count} repair services"
+
+
+# Lab 9: multimedia seeds
+
+repairs = Repair.order(:id).limit(10).to_a
+
+raise "At least 10 repairs are required" if repairs.size < 10
+
+repairs.each_with_index do |repair, index|
+  unless repair.diagnosis.present?
+    repair.update!(
+      diagnosis: <<~HTML
+        <p><strong>Inspection #{index + 1}</strong></p>
+        <p>Initial inspection of the bicycle.</p>
+        <ul>
+          <li>Check brakes and tires</li>
+          <li>Inspect chain and transmission</li>
+          <li>Verify safety before delivery</li>
+        </ul>
+      HTML
+    )
+  end
+
+  photo_numbers = index.zero? ? [1, 2, 3, 4] : [((index + 3) % 12) + 1]
+
+  existing_names = repair.intake_photos.map do |photo|
+    photo.blob.filename.to_s
+  end
+
+  photo_numbers.each do |number|
+    filename = format("bike_%02d.png", number)
+    next if existing_names.include?(filename)
+
+    path = Rails.root.join("db", "seeds", "images", filename)
+
+    File.open(path, "rb") do |file|
+      repair.intake_photos.attach(
+        io: file,
+        filename: filename,
+        content_type: "image/png"
+      )
+    end
+  end
+end
+
+puts "Lab 9 multimedia seeds completed."

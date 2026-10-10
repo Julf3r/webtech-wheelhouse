@@ -38,7 +38,38 @@ class Repair < ApplicationRecord
   validate :dates_make_sense
   validate :customer_decision_matches_lifecycle
 
+  
+  has_many_attached :intake_photos do |attachable|
+    attachable.variant :thumb, resize_to_fill: [96, 96]
+    attachable.variant :display, resize_to_limit: [900, 900]
+  end
+
+  has_rich_text :diagnosis
+
+  validate :validate_intake_photos
+
   private
+
+  def validate_intake_photos
+    intake_photos.each do |photo|
+      blob = photo.blob
+
+      unless blob.content_type.in?(%w[image/jpeg image/png image/webp])
+        errors.add(
+          :intake_photos,
+          "#{blob.filename} must be a JPEG, PNG or WebP image"
+        )
+      end
+
+      if blob.byte_size > 5.megabytes
+        errors.add(
+          :intake_photos,
+          "#{blob.filename} must be 5 MB or smaller"
+        )
+      end
+    end
+  end
+  
   
   def dates_make_sense
     if handed_back_at.present? && handed_back_at.to_date < received_at.to_date

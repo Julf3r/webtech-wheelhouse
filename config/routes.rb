@@ -9,4 +9,8 @@ Rails.application.routes.draw do
   resources :repairs
   resources :services
   resources :staff
+
+  delete "repairs/:id/photos/:attachment_id",
+       to: "repairs#purge_photo",
+       as: :purge_repair_photo
 end
