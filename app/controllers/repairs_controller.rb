@@ -22,6 +22,7 @@ end
 
   def create
     @repair = Repair.new(repair_params)
+    @repair.received_by = Current.user
 
     if @repair.save
       redirect_to @repair, notice: "Repair was created."

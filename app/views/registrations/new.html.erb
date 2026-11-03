@@ -1,0 +1,31 @@
+<h1>Create an account</h1>
+
+<%= form_with model: @user, url: registration_path do |form| %>
+  <% if @user.errors.any? %>
+    <div class="alert alert-danger">
+      <%= @user.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :email_address, class: "form-label" %>
+    <%= form.email_field :email_address, class: "form-control" %>
+    <%= @user.errors.full_messages_for(:email_address).join(", ") %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :password, class: "form-label" %>
+    <%= form.password_field :password, class: "form-control" %>
+    <%= @user.errors.full_messages_for(:password).join(", ") %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :password_confirmation, class: "form-label" %>
+    <%= form.password_field :password_confirmation, class: "form-control" %>
+    <%= @user.errors.full_messages_for(:password_confirmation).join(", ") %>
+  </div>
+
+  <%= form.submit "Create account", class: "btn btn-primary" %>
+<% end %>
+
+<%= link_to "Already have an account? Sign in", new_session_path %>

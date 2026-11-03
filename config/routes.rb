@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resource :session
+  resources :passwords, param: :token
   root "pages#home"
 
   get "visit", to: "pages#visit", as: :visit
@@ -20,4 +22,6 @@ Rails.application.routes.draw do
       resources :repairs, only: %i[index show]
     end
   end
+
+  resource :registration, only: %i[new create]
 end

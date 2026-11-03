@@ -51,4 +51,6 @@ class ServicesController < ApplicationController
   def service_params
     params.expect(service: [:name, :current_price])
   end
+
+  allow_unauthenticated_access only: %i[index show]
 end
