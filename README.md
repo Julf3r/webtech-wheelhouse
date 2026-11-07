@@ -225,3 +225,49 @@ bin/rails routes -g api
 ## Authors
 
 - Julián Rodríguez
+## Lab 12 — Authorization
+
+Wheelhouse uses Pundit for role-based authorization.
+
+See [Permissions](docs/permissions.md) for the complete
+authorization matrix and [Decisions](docs/decisions.md)
+for implementation decisions.
+
+### Setup
+
+Install dependencies and prepare the database:
+
+```bash
+bundle install
+bin/rails db:prepare
+bin/rails db:seed
+bin/rails server
+
+
+
+### Demo accounts
+
+| Role | Email |
+|---|---|
+| Owner | owner@wheelhouse.test |
+| Counter | counter@wheelhouse.test |
+| Mechanic | daniel@wheelhouse.test |
+| Mechanic | camila@wheelhouse.test |
+
+Initial seed password: `Wheelhouse2026!`
+
+Seed accounts are intended for local development and testing,
+not production use. Existing account passwords are preserved
+when the seeds are rerun.
+
+### Verification
+
+Run the following commands to verify the application:
+
+- `bin/rails zeitwerk:check`
+- `bin/rails test`
+- `bin/brakeman`
+
+The test suite includes Pundit policy tests and HTTP
+integration tests for unauthorized requests and attribute
+restrictions.

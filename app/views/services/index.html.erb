@@ -1,6 +1,8 @@
 <h1>Services</h1>
-<%= link_to "New Service", new_service_path, class: "btn btn-primary mb-3" %>
-
+<% if policy(Service).create? %>
+  <%= link_to "New Service", new_service_path,
+      class: "btn btn-primary mb-3" %>
+<% end %>
 <p>Our current bicycle repair services and prices.</p>
 
 <div class="table-responsive">

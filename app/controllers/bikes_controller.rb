@@ -3,18 +3,28 @@ class BikesController < ApplicationController
   before_action :set_bike, only: %i[show edit update destroy]
 
   def index
-    @bikes = Bike.includes(:customer).by_make_and_model
+    authorize Bike, :index?
+    @bikes = policy_scope(Bike).includes(:customer).by_make_and_model
   end
 
   def show
+    authorize @bike
+
+    @repairs = policy_scope(Repair)
+      .where(bike_id: @bike.id)
+      .includes(:rich_text_diagnosis, bike: :customer)
+      .with_attached_intake_photos
+      .by_newest_first
   end
 
   def new
     @bike = Bike.new(customer_id: params[:customer_id])
+    authorize @bike
   end
 
   def create
     @bike = Bike.new(bike_params)
+    authorize @bike
 
     if @bike.save
       redirect_to @bike, notice: "Bike #{@bike.serial_number} was created."
@@ -24,9 +34,11 @@ class BikesController < ApplicationController
   end
 
   def edit
+    authorize @bike
   end
 
   def update
+    authorize @bike
     if @bike.update(bike_params)
       redirect_to @bike, notice: "Bike #{@bike.serial_number} was updated."
     else
@@ -35,6 +47,8 @@ class BikesController < ApplicationController
   end
 
   def destroy
+    authorize @bike
+
     if @bike.destroy
       redirect_to bikes_path, notice: "Bike #{@bike.serial_number} was deleted.", status: :see_other
     else

@@ -34,3 +34,58 @@ No. The customer's decision is stored separately, and a rejected repair moves to
 
 **What would change if the answer were different?**  
 If rejection were modeled as its own repair status, the repair lifecycle would need an additional `rejected` state and the allowed transitions would have to be updated.
+## Lab 12 — Authorization
+
+### Authorization framework
+
+Pundit was selected to separate authorization rules from
+controllers and views.
+
+Each resource has its own policy, inheriting from
+`ApplicationPolicy`, which denies access by default.
+
+### User context
+
+Policies receive the authenticated user through
+`pundit_user`, using `Current.user`.
+
+Role checks use the User enum predicates (`owner?`,
+`counter?`, `mechanic?`) rather than string comparisons.
+
+### Repair ownership
+
+Repair visibility for mechanics is based on the associated
+Staff record, not on the User record ID.
+
+A mechanic without a Staff association has no assigned
+repairs available.
+
+### Completed repairs
+
+The final `completed` status represents the handed-back
+state for authorization purposes.
+
+Counter and mechanic users cannot edit completed repairs.
+
+### Strong parameters
+
+`RepairPolicy#permitted_attributes` defines which repair
+attributes each role may submit.
+
+Authorization is checked before changes are persisted.
+
+### Public services
+
+The service catalog remains public, including for visitors.
+Administrative service operations require the owner role.
+
+### Unauthorized responses
+
+Protected routes require authentication. Authenticated users
+without permission receive HTTP 403.
+
+### API compatibility
+
+Pundit authorization is applied to the HTML application
+controllers without changing the existing API authentication
+mechanism.

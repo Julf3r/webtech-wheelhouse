@@ -1,0 +1,2 @@
+class BikePolicy < CustomerPolicy
+end

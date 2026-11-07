@@ -1,4 +1,7 @@
 class PagesController < ApplicationController
+  allow_unauthenticated_access only: %i[home about visit]
+  before_action :skip_authorization, only: %i[home about visit]
+
   def home
   end
 
@@ -11,6 +14,4 @@ class PagesController < ApplicationController
 
   def about
   end
-
-  allow_unauthenticated_access only: %i[home about visit]
 end

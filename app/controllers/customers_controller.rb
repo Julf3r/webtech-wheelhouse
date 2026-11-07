@@ -3,18 +3,22 @@ class CustomersController < ApplicationController
   before_action :set_customer, only: %i[show edit update destroy]
 
   def index
-    @customers = Customer.by_name
+    authorize Customer, :index?
+    @customers = policy_scope(Customer).by_name
   end
 
   def show
+    authorize @customer
   end
 
   def new
     @customer = Customer.new
+    authorize @customer
   end
 
   def create
     @customer = Customer.new(customer_params)
+    authorize @customer
 
     if @customer.save
       redirect_to @customer, notice: "Customer #{@customer.name} was created."
@@ -24,9 +28,11 @@ class CustomersController < ApplicationController
   end
 
   def edit
+    authorize @customer
   end
 
   def update
+    authorize @customer
     if @customer.update(customer_params)
       redirect_to @customer, notice: "Customer #{@customer.name} was updated."
     else
@@ -35,6 +41,8 @@ class CustomersController < ApplicationController
   end
 
   def destroy
+    authorize @customer
+
     @customer = Customer.find(params[:id])
 
     if @customer.destroy

@@ -1,6 +1,8 @@
 <h1>Staff</h1>
-<%= link_to "New Staff Member", new_staff_path, class: "btn btn-primary mb-3" %>
-
+<% if policy(Staff).create? %>
+  <%= link_to "New Staff Member", new_staff_path,
+      class: "btn btn-primary mb-3" %>
+<% end %>
 <table class="table table-striped">
   <thead>
     <tr>

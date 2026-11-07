@@ -23,7 +23,7 @@
 
   <tbody>
     <%= render partial: "repairs/repair_row",
-        collection: @bike.repairs,
+        collection: @repairs,
         as: :repair %>
   </tbody>
 </table>
@@ -31,25 +31,22 @@
 
 <%= link_to "Back to bikes", bikes_path, class: "btn btn-secondary" %>
 
-<div class="d-flex gap-2 mt-4">
+<% if policy(Repair).create? %>
   <%= link_to "New Repair",
       new_repair_path(bike_id: @bike.id),
       class: "btn btn-primary" %>
+<% end %>
 
+<% if policy(@bike).update? %>
   <%= link_to "Edit Bike",
       edit_bike_path(@bike),
       class: "btn btn-outline-primary" %>
+<% end %>
 
+<% if policy(@bike).destroy? %>
   <%= button_to "Delete Bike",
       bike_path(@bike),
       method: :delete,
       class: "btn btn-danger",
-      form: {
-        data: {
-          turbo_confirm: "Are you sure you want to delete this bike?"
-        }
-      } %>
-
-  <%= link_to "Back", bikes_path,
-      class: "btn btn-secondary" %>
-</div>
+      form: { data: { turbo_confirm: "Are you sure?" } } %>
+<% end %>

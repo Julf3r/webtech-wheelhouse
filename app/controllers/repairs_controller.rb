@@ -1,14 +1,16 @@
 class RepairsController < ApplicationController
   before_action :set_repair, only: %i[show edit update destroy purge_photo]
   def index
-  @repairs = Repair
-    .includes(bike: :customer)
-    .with_attached_intake_photos
-    .with_rich_text_diagnosis
-    .by_newest_first
-end
+    authorize Repair, :index?
+    @repairs = policy_scope(Repair)
+      .includes(bike: :customer)
+      .with_attached_intake_photos
+      .with_rich_text_diagnosis
+      .by_newest_first
+  end
 
   def show
+    authorize @repair
   end
 
   def new
@@ -17,26 +19,34 @@ end
       received_at: Time.current,
       status: :received
     )
+    authorize @repair
     @repair.repair_services.build
   end
 
   def create
-    @repair = Repair.new(repair_params)
+    @repair = Repair.new
+    authorize @repair
+
+    @repair.assign_attributes(repair_params)
     @repair.received_by = Current.user
 
     if @repair.save
       redirect_to @repair, notice: "Repair was created."
     else
+      @repair.repair_services.build if @repair.repair_services.empty?
       render :new, status: :unprocessable_content
     end
   end
 
   def edit
+    authorize @repair
+
     @repair.repair_services.build
   end
 
   
   def update
+    authorize @repair
     attributes = repair_params
     new_photos = attributes.delete(:intake_photos)
 
@@ -56,6 +66,8 @@ end
 
 
   def destroy
+    authorize @repair
+
     if @repair.destroy
       redirect_to repairs_path,
                   notice: "Repair was deleted.",
@@ -68,6 +80,7 @@ end
   end
 
   def purge_photo
+    authorize @repair, :purge_photo?
     photo = @repair.intake_photos.attachments.find(params[:attachment_id])
     photo.purge
 
@@ -88,26 +101,6 @@ end
 
   
   def repair_params
-    params.expect(
-      repair: [
-        :bike_id,
-        :mechanic_id,
-        :status,
-        :promised_on,
-        :received_at,
-        :handed_back_at,
-        :quoted_price,
-        :customer_decision,
-        :intake_condition,
-        :diagnosis,
-        repair_services_attributes: [[
-          :id,
-          :service_id,
-          :charged_price,
-          :_destroy
-        ]],
-        intake_photos: []
-      ]
-    )
+    params.expect(repair: policy(@repair).permitted_attributes)
   end
 end

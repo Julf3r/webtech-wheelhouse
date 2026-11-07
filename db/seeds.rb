@@ -1,10 +1,7 @@
-# Clear existing data so the seed is idempotent.
-RepairService.delete_all
-Repair.delete_all
-Bike.delete_all
-Customer.delete_all
-Staff.delete_all
-Service.delete_all
+# Non-destructive, repeatable sample data.
+# Existing records, prices, assignments, and passwords are preserved.
+# Natural keys: service name, staff name, customer phone, bike serial number.
+# Sample repairs are identified by their original bike/mechanic pair.
 
 # -------------------------------------------------------------------
 # Services
@@ -36,10 +33,9 @@ service_data = [
 services = {}
 
 service_data.each do |name, price|
-  services[name] = Service.create!(
-    name: name,
-    current_price: price
-  )
+  services[name] = Service.find_or_create_by!(name: name) do |service|
+    service.current_price = price
+  end
 end
 
 # -------------------------------------------------------------------
@@ -54,7 +50,9 @@ staff = {}
   ["Tomás Silva", "Mechanic"],
   ["Sofía Morales", "Counter Worker"]
 ].each do |name, role|
-  staff[name] = Staff.create!(name: name, role: role)
+  staff[name] = Staff.find_or_create_by!(name: name) do |member|
+    member.role = role
+  end
 end
 
 # -------------------------------------------------------------------
@@ -75,7 +73,9 @@ customers = {}
   ["Isidora López", "+56 9 9999 9999"],
   ["Joaquín Castro", "+56 9 1010 1010"]
 ].each do |name, phone|
-  customers[name] = Customer.create!(name: name, phone: phone)
+  customers[name] = Customer.find_or_create_by!(phone: phone) do |customer|
+    customer.name = name
+  end
 end
 
 # -------------------------------------------------------------------
@@ -100,13 +100,12 @@ bike_data = [
 ]
 
 bike_data.each do |key, customer_name, make, model, color, serial|
-  bikes[key] = Bike.create!(
-    customer_id: customers[customer_name].id,
-    make: make,
-    model: model,
-    color: color,
-    serial_number: serial
-  )
+  bikes[key] = Bike.find_or_create_by!(serial_number: serial) do |bike|
+    bike.customer = customers.fetch(customer_name)
+    bike.make = make
+    bike.model = model
+    bike.color = color
+  end
 end
 
 # -------------------------------------------------------------------
@@ -119,17 +118,18 @@ def create_repair(bikes, staff, key, bike_key, mechanic_name, status,
                   received_days_ago, promised_offset,
                   quoted_price: nil, decision: nil, handed_back_at: nil)
 
-  Repair.create!(
-    bike_id: bikes[bike_key].id,
-    mechanic_id: mechanic_name ? staff[mechanic_name].id : nil,
-    status: status,
-    received_at: Time.current - received_days_ago.days,
-    promised_on: Date.current + promised_offset.days,
-    handed_back_at: handed_back_at,
-    quoted_price: quoted_price,
-    customer_decision: decision,
-    intake_condition: "Bike received with normal signs of use."
-  )
+  bike = bikes.fetch(bike_key)
+  mechanic = mechanic_name ? staff.fetch(mechanic_name) : nil
+
+  Repair.find_or_create_by!(bike: bike, mechanic: mechanic) do |repair|
+    repair.status = status
+    repair.received_at = Time.current - received_days_ago.days
+    repair.promised_on = Date.current + promised_offset.days
+    repair.handed_back_at = handed_back_at
+    repair.quoted_price = quoted_price
+    repair.customer_decision = decision
+    repair.intake_condition = "Bike received with normal signs of use."
+  end
 end
 
 repairs["received"] = create_repair(
@@ -205,17 +205,17 @@ repairs["rejected"] = create_repair(
 # Same-day repair.
 same_day_received = Time.current - 12.days
 
-repairs["same_day"] = Repair.create!(
-  bike_id: bikes["bike_9"].id,
-  mechanic_id: staff["Camila Reyes"].id,
-  status: "completed",
-  received_at: same_day_received,
-  promised_on: same_day_received.to_date,
-  handed_back_at: same_day_received + 5.hours,
-  quoted_price: 25000,
-  customer_decision: "approved",
-  intake_condition: "Bike received in good general condition."
-)
+repairs["same_day"] = Repair.find_or_create_by!(
+  bike: bikes.fetch("bike_9"), mechanic: staff.fetch("Camila Reyes")
+) do |repair|
+  repair.status = "completed"
+  repair.received_at = same_day_received
+  repair.promised_on = same_day_received.to_date
+  repair.handed_back_at = same_day_received + 5.hours
+  repair.quoted_price = 25000
+  repair.customer_decision = "approved"
+  repair.intake_condition = "Bike received in good general condition."
+end
 
 # More repairs so that one bike has repair history.
 repairs["history_1"] = create_repair(
@@ -265,28 +265,26 @@ repairs["extra_3"] = create_repair(
 # Repair before January of the current year.
 old_received = Date.current.beginning_of_year - 2.months
 
-repairs["old"] = Repair.create!(
-  bike_id: bikes["bike_4"].id,
-  mechanic_id: staff["Daniel Soto"].id,
-  status: "completed",
-  received_at: old_received.to_time,
-  promised_on: old_received + 3.days,
-  handed_back_at: (old_received + 3.days).to_time,
-  quoted_price: 50000,
-  customer_decision: "approved",
-  intake_condition: "Bike received with worn drivetrain."
-)
+repairs["old"] = Repair.find_or_create_by!(
+  bike: bikes.fetch("bike_4"), mechanic: staff.fetch("Daniel Soto")
+) do |repair|
+  repair.status = "completed"
+  repair.received_at = old_received.to_time
+  repair.promised_on = old_received + 3.days
+  repair.handed_back_at = (old_received + 3.days).to_time
+  repair.quoted_price = 50000
+  repair.customer_decision = "approved"
+  repair.intake_condition = "Bike received with worn drivetrain."
+end
 
 # -------------------------------------------------------------------
 # Repair services
 # -------------------------------------------------------------------
 
 def add_service(repair, service, charged_price = nil)
-  RepairService.create!(
-    repair_id: repair.id,
-    service_id: service.id,
-    charged_price: charged_price || service.current_price
-  )
+  RepairService.find_or_create_by!(repair: repair, service: service) do |item|
+    item.charged_price = charged_price || service.current_price
+  end
 end
 
 add_service(repairs["received"], services["Safety inspection"])
@@ -344,11 +342,10 @@ puts "#{RepairService.count} repair services"
 
 # Lab 9: multimedia seeds
 
-repairs = Repair.order(:id).limit(10).to_a
+multimedia_repairs = repairs.values.first(10)
+raise "At least 10 sample repairs are required" if multimedia_repairs.size < 10
 
-raise "At least 10 repairs are required" if repairs.size < 10
-
-repairs.each_with_index do |repair, index|
+multimedia_repairs.each_with_index do |repair, index|
   unless repair.diagnosis.present?
     repair.update!(
       diagnosis: <<~HTML
@@ -386,3 +383,41 @@ repairs.each_with_index do |repair, index|
 end
 
 puts "Lab 9 multimedia seeds completed."
+
+seed_accounts = [
+  {
+    email: "owner@wheelhouse.test",
+    role: :owner,
+    staff: nil
+  },
+  {
+    email: "counter@wheelhouse.test",
+    role: :counter,
+    staff: nil
+  },
+  {
+    email: "daniel@wheelhouse.test",
+    role: :mechanic,
+    staff: staff.fetch("Daniel Soto")
+  },
+  {
+    email: "camila@wheelhouse.test",
+    role: :mechanic,
+    staff: staff.fetch("Camila Reyes")
+  }
+]
+
+seed_accounts.each do |data|
+  user = User.find_or_initialize_by(email_address: data[:email])
+
+  if user.new_record?
+    user.password = "Wheelhouse2026!"
+    user.password_confirmation = "Wheelhouse2026!"
+  end
+
+  user.role = data[:role]
+  user.staff = data[:staff]
+  user.save!
+
+  puts "#{user.email_address}: #{user.role}"
+end
